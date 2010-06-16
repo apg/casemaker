@@ -1,3 +1,17 @@
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 """Case Maker creates test case methods.
 
 class TestSomething(unittest.TestCase):
@@ -18,19 +32,6 @@ class TestSomething(unittest.TestCase):
 This will define 3 test cases using assertEqual, assertNotEqual and 
 assertRaises.
 """
-
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
 import operator
@@ -112,14 +113,15 @@ _OPERATOR_NAMES = {
 def _make_bin_operator_test(operator, operand1, operand2, expecting):
 
     def inner(self):
-       self.assertEquals(_OPERATORS[operator](operand1, operand2), expecting)
+       self.assertEquals(_BIN_OPERATORS[operator](operand1, operand2),
+                         expecting)
     return inner
 
 
 def _make_unary_operator_test(operator, operand1, expecting):
 
     def inner(self):
-        self.assertEquals(_OPERATORS[operator](operand1), expecting)
+        self.assertEquals(_UNARY_OPERATORS[operator](operand1), expecting)
     return inner
 
 
@@ -139,14 +141,17 @@ class AssertingMetaClass(type):
             .__new__(cls, name, bases, attrs)
 
         for attr, value in attrs.iteritems():
+
             if attr in cls._FACTORY_MAP:
                 lattr = attr.lower()
                 for test in value:
-                    mname = 'test%s_%d' % (lattr, cls._TEST_CASE[attr])
+                    mname = 'test_asserting_%s_%d' % (
+                        lattr, cls._TEST_CASE[attr])
                     cls._TEST_CASE[attr] += 1
-                    test_method = cls._FACTORY_MAP[attr](*test)
+                    test_method = \
+                        cls._FACTORY_MAP[attr](*test)
                     test_method.__name__ = mname
-                    setattr(new_class, mname, cls._FACTORY_MAP[attr](*test))
+                    setattr(new_class, mname, test_method)
         
         return new_class
 
